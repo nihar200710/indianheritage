@@ -1,0 +1,113 @@
+/* RESET & BASICS */
+:root {
+  --primary: #d35400; /* Indian Saffron */
+  --secondary: #2c3e50;
+  --bg: #fdfbf7;
+}
+
+* {
+  box-sizing: border-box; /* Crucial for responsiveness */
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg);
+  color: var(--secondary);
+  width: 100%;
+  overflow-x: hidden; /* Prevents side scrolling on mobile */
+}
+
+/* VITE ROOT CONTAINER FIX */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* RESPONSIVE CONTAINER */
+/* This centers your content and gives it breathing room */
+.container {
+  width: 100%;
+  max-width: 1200px; /* On large screens, stop getting wider */
+  margin: 0 auto;    /* Centers the container */
+  padding: 20px;     /* Adds space on mobile edges */
+}
+
+/* BUTTONS */
+.btn {
+  background: var(--primary);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s;
+  display: inline-block; /* Fixes buttons sometimes looking weird */
+}
+.btn:hover {
+  background: #b04600;
+  transform: translateY(-2px);
+}
+
+/* CARDS */
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  text-align: center;
+  transition: 0.3s;
+}
+.card:hover {
+  box-shadow: 0 10px 15px rgba(0,0,0,0.2);
+}
+
+/* RESPONSIVE GRID */
+/* Auto-adjusts: 1 column on mobile, 4 on laptop */
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+  gap: 20px;
+  width: 100%;
+}
+
+/* NAVBAR FIX */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  width: 100%;
+}
+
+/* HERO SECTION */
+.hero {
+  text-align: center;
+  padding: 60px 20px;
+  background: linear-gradient(to bottom, #ffeebb, #fdfbf7);
+  width: 100%;
+}
+
+/* MOBILE ADJUSTMENTS */
+@media (max-width: 768px) {
+  nav {
+    flex-direction: column;
+    gap: 15px;
+    padding: 1rem;
+  }
+  
+  .hero h1 {
+    font-size: 2rem; /* Smaller text on phone */
+  }
+  
+  .grid-4 {
+    grid-template-columns: 1fr; /* 1 card per row on phone */
+  }
+}
