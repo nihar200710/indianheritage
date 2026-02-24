@@ -21,18 +21,16 @@ export default function Home() {
         `}
       </style>
 
-      {/* 1. HERO SECTION WITH BACKGROUND VIDEO */}
+      {/* HERO SECTION */}
       <div style={{ position: 'relative', height: '100vh', width: '100%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         
         <video autoPlay loop muted playsInline style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: -2 }}>
           <source src="https://cdn.pixabay.com/video/2020/05/25/40140-424813583_large.mp4" type="video/mp4" />
         </video>
 
-        {/* FIXED: Light frosted overlay guarantees dark text is ALWAYS readable, even if video loads */}
         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(253, 251, 247, 0.85)', zIndex: -1 }}></div>
 
         <div style={{ textAlign: 'center', zIndex: 1, padding: '20px', maxWidth: '900px' }}>
-          {/* FIXED: Text is now Deep Navy (#0f172a) so it shows up beautifully */}
           <h1 className="animate-down" style={{ fontSize: '4.5rem', fontWeight: '800', margin: '0 0 20px 0', textShadow: '0 2px 5px rgba(0,0,0,0.05)', letterSpacing: '2px', color: '#0f172a' }}>
             Discover India's Soul
           </h1>
@@ -45,7 +43,6 @@ export default function Home() {
               Start Exploring
             </Link>
             
-            {/* FIXED: Secondary button is now Saffron outline so it doesn't vanish */}
             <button 
               onClick={() => setIsRolesModalOpen(true)}
               className="hover-btn" 
@@ -57,7 +54,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 2. QUICK FEATURES SECTION */}
+      {/* QUICK FEATURES SECTION */}
       <div style={{ padding: '100px 20px', textAlign: 'center', maxWidth: '1200px', margin: '0 auto' }}>
         <h2 style={{ fontSize: '2.5rem', color: '#0f172a', marginBottom: '50px' }}>Why Choose Our Platform?</h2>
         
@@ -84,7 +81,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* --- ROLES MODAL --- */}
+      {/* ROLES MODAL */}
       {isRolesModalOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
           

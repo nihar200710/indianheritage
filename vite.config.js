@@ -3,6 +3,6 @@ import react from '@vitejs/plugin-react-swc'
 
 export default defineConfig({
   plugins: [react()],
-  // Replace 'indian-heritage-frontend' with your EXACT GitHub repository name
+  // This MUST match your GitHub repository name exactly!
   base: '/indianheritage/' 
 })
