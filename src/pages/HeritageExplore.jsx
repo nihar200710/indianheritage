@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { MapPin, X, Info, Sparkles, Search, Clock, Calendar } from 'lucide-react';
 
 export default function HeritageExplore() {
-  // 👇 PASTE YOUR GEMINI API KEY HERE 👇
   const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY; 
 
   const [selectedMonument, setSelectedMonument] = useState(null);
@@ -10,67 +9,46 @@ export default function HeritageExplore() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // --- FIXED: DIRECT WIKIPEDIA IMAGE LINKS ONLY ---
-  // These bypass thumbnail blockers and will load like the Taj Mahal image did!
-  const imageDictionary = {
-    "redfort": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Red_Fort_in_Delhi_03-2016.jpg",
-    "charminar": "https://upload.wikimedia.org/wikipedia/commons/6/6e/Charminar_Hyderabad_1.jpg",
-    "gatewayofindia": "https://upload.wikimedia.org/wikipedia/commons/0/01/Gateway_of_India_Mumbai.jpg",
-    "mysorepalace": "https://upload.wikimedia.org/wikipedia/commons/8/85/Mysore_Palace_Morning.jpg",
-    "goldentemple": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Golden_Temple%2C_Amritsar%2C_India.jpg",
-    "qutubminar": "https://upload.wikimedia.org/wikipedia/commons/b/b6/Qutb_Minar_in_Delhi.jpg",
-    "meenakshitemple": "https://upload.wikimedia.org/wikipedia/commons/c/cd/Meenakshi_Amman_Temple_Madurai.jpg",
-    "victoriamemorial": "https://upload.wikimedia.org/wikipedia/commons/d/d7/Victoria_Memorial_Kolkata.jpg",
-    "sanchistupa": "https://upload.wikimedia.org/wikipedia/commons/4/49/Sanchi_Stupa_1.jpg",
-    "khajuraho": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Khajuraho_Lakshmana_Temple.jpg",
-    "amerfort": "https://upload.wikimedia.org/wikipedia/commons/3/30/Amber_Fort_Jaipur.jpg",
-    "amberfort": "https://upload.wikimedia.org/wikipedia/commons/3/30/Amber_Fort_Jaipur.jpg",
-    "fatehpursikri": "https://upload.wikimedia.org/wikipedia/commons/8/87/Fatehpur_Sikri_Buland_Darwaza.jpg",
-    "brihadisvaratemple": "https://upload.wikimedia.org/wikipedia/commons/6/67/Brihadisvara_Temple_Thanjavur.jpg",
-    "golcondafort": "https://upload.wikimedia.org/wikipedia/commons/5/52/Golconda_Fort_Hyderabad.jpg",
-    "hawamahal": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Palace_of_Winds_Jaipur_India.jpg",
-    "lotustemple": "https://upload.wikimedia.org/wikipedia/commons/f/fc/Lotus_Temple_New_Delhi_India_-_Feb_2004.jpg"
-  };
+  // States for the new glassmorphism action modals
+  const [activeActionModal, setActiveActionModal] = useState(null); // 'join' or 'connect'
+  const [messageSent, setMessageSent] = useState(false);
 
-  const genericImage = "https://upload.wikimedia.org/wikipedia/commons/e/e4/Palace_of_Winds_Jaipur_India.jpg"; 
-
-  // 1. HARDCODED MONUMENTS (Default Grid)
+  // Initial data without images
   const [monuments, setMonuments] = useState([
     { 
       id: 1, name: "Taj Mahal", location: "Agra, Uttar Pradesh", 
-      image: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Taj_Mahal_in_March_2004.jpg",
       desc: "An immense mausoleum of white marble, built in Agra between 1631 and 1648 by order of the Mughal emperor Shah Jahan in memory of his favourite wife.",
       history: "Commissioned in 1632, the Taj Mahal took over 20 years to build and employed roughly 20,000 artisans.",
       architecture: "It features perfect symmetrical planning, a massive white marble dome, and intricate pietra dura using semi-precious stones.",
-      mapQuery: "Taj Mahal, Agra, India"
+      mapQuery: "Taj Mahal, Agra, India",
+      guide: "Rahul Sharma"
     },
     { 
       id: 2, name: "Hampi Monuments", location: "Vijayanagara, Karnataka", 
-      image: "https://upload.wikimedia.org/wikipedia/commons/3/30/Hampi_Virupaksha_Temple.jpg",
       desc: "The grandiose site of Hampi was the last capital of the last great Hindu Kingdom of Vijayanagar.",
       history: "Founded in the 14th century, Hampi was a prosperous, wealthy, and grand city. By 1500 CE, it was the world's second-largest medieval-era city after Beijing.",
       architecture: "Famous for its large-scale Dravidian architecture, particularly the Virupaksha Temple and the iconic Stone Chariot.",
-      mapQuery: "Hampi, Karnataka, India"
+      mapQuery: "Hampi, Karnataka, India",
+      guide: "Priya Patel"
     },
     { 
       id: 3, name: "Konark Sun Temple", location: "Konark, Odisha", 
-      image: "https://upload.wikimedia.org/wikipedia/commons/4/47/Konarka_Temple.jpg",
       desc: "On the shores of the Bay of Bengal, the temple at Konarak is a monumental representation of the sun god Surya's chariot, featuring 24 intricately carved wheels.",
       history: "Built in the 13th century by King Narasimhadeva I of the Eastern Ganga dynasty. It was called the 'Black Pagoda' by European sailors.",
       architecture: "Designed as a massive chariot drawn by seven majestic horses. The wheels act as sundials, which can be used to calculate time to the exact minute.",
-      mapQuery: "Konark Sun Temple, Odisha, India"
+      mapQuery: "Konark Sun Temple, Odisha, India",
+      guide: "Amit Kumar"
     },
     { 
       id: 4, name: "Ajanta Caves", location: "Aurangabad, Maharashtra", 
-      image: "https://upload.wikimedia.org/wikipedia/commons/c/c0/Ajanta_Caves_view_from_nearby_hill_2013-10-02_12-25.jpg",
       desc: "The Ajanta Caves are approximately 30 rock-cut Buddhist cave monuments dating from the 2nd century BCE to about 480 CE.",
       history: "Abandoned and forgotten for centuries, these caves were accidentally rediscovered in 1819 by a British officer named John Smith during a tiger hunting expedition.",
       architecture: "Entirely carved out of the solid rock of a horseshoe-shaped cliff. The caves include sanctuaries and monasteries adorned with expressive mural paintings.",
-      mapQuery: "Ajanta Caves, Maharashtra, India"
+      mapQuery: "Ajanta Caves, Maharashtra, India",
+      guide: "Neha Gupta"
     }
   ]);
 
-  // 2. AI SEARCH LOGIC
   const handleAISearch = async (e) => {
     e.preventDefault();
     if (!searchQuery) return;
@@ -78,9 +56,7 @@ export default function HeritageExplore() {
     setIsGenerating(true);
 
     try {
-      if (GEMINI_API_KEY === "YOUR_API_KEY_HERE") {
-        throw new Error("Please add your Gemini API Key at the top of the file!");
-      }
+      if (!GEMINI_API_KEY) throw new Error("API Key is missing from .env file!");
 
       const cleanSearch = searchQuery.trim().replace(/[^a-zA-Z0-9 ]/g, "");
       const prompt = `Act as an expert Indian Heritage Tour Guide. Provide accurate information about the Indian heritage site or city: "${cleanSearch}". 
@@ -107,18 +83,15 @@ export default function HeritageExplore() {
       const finalHistory = historyMatch ? historyMatch[1] : `Has a rich and deep historical significance.`;
       const finalArch = archMatch ? archMatch[1] : `Features classic Indian architectural styles.`;
 
-      const searchKey = cleanSearch.toLowerCase().replace(/[^a-z0-9]/g, "");
-      const matchedImage = imageDictionary[searchKey] || genericImage;
-
       const newMonument = {
         id: Date.now(),
         name: searchQuery.toUpperCase(),
         location: "Verified by AI Database",
-        image: matchedImage,
         desc: `✨ ${finalDesc}`,
         history: `✨ ${finalHistory}`,
         architecture: `✨ ${finalArch}`,
-        mapQuery: `${cleanSearch}, India`
+        mapQuery: `${cleanSearch}, India`,
+        guide: "AI Virtual Guide"
       };
 
       setMonuments([newMonument, ...monuments]);
@@ -131,6 +104,12 @@ export default function HeritageExplore() {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const openActionModal = (type, e) => {
+    e.stopPropagation(); 
+    setActiveActionModal(type);
+    setMessageSent(false);
   };
 
   return (
@@ -163,23 +142,14 @@ export default function HeritageExplore() {
       {/* GRID */}
       <div className="grid-4">
         {monuments.map((m) => (
-          <div key={m.id} className="card" style={{ padding: 0, overflow: 'hidden', textAlign: 'left', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ height: '200px', width: '100%', background: '#eee' }}>
-              <img 
-                src={m.image} 
-                alt={m.name} 
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                // FIXED ON ERROR: Added a check so it doesn't get stuck in an infinite loop
-                onError={(e) => { if(e.target.src !== genericImage) e.target.src = genericImage; }} 
-              />
-            </div>
-            <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <h3 style={{ margin: '0 0 5px 0' }}>{m.name}</h3>
-              <div style={{ display: 'flex', alignItems: 'center', color: '#666', fontSize: '0.9rem', marginBottom: '10px' }}>
+          <div key={m.id} className="card" style={{ padding: '25px', textAlign: 'left', display: 'flex', flexDirection: 'column', borderTop: '4px solid #d35400' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <h3 style={{ margin: '0 0 5px 0', fontSize: '1.4rem' }}>{m.name}</h3>
+              <div style={{ display: 'flex', alignItems: 'center', color: '#666', fontSize: '0.9rem', marginBottom: '15px' }}>
                 <MapPin size={16} style={{ marginRight: '5px' }} />
                 {m.location}
               </div>
-              <p style={{ fontSize: '0.9rem', color: '#555', marginBottom: '15px', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+              <p style={{ fontSize: '1rem', color: '#555', marginBottom: '20px', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.5' }}>
                 {m.desc}
               </p>
               <button 
@@ -194,21 +164,20 @@ export default function HeritageExplore() {
         ))}
       </div>
 
-      {/* MODAL POPUP */}
+      {/* 🌟 UPGRADED PREMIUM LIQUID GLASS MODAL: MAIN MONUMENT DETAILS 🌟 */}
       {selectedMonument && (
-        <div onClick={() => setSelectedMonument(null)} style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: 'white', borderRadius: '15px', maxWidth: '1000px', width: '100%', maxHeight: '90vh', overflowY: 'auto', position: 'relative', display: 'flex', flexDirection: 'column', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}>
-            <button onClick={() => setSelectedMonument(null)} style={{ position: 'absolute', top: '15px', right: '15px', background: '#ff4d4d', color: 'white', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10, boxShadow: '0 2px 5px rgba(0,0,0,0.3)' }}>
-              <X size={24} strokeWidth={3} />
-            </button>
-
-            <div style={{ width: '100%', height: '350px', background: '#eee' }}>
-              <img src={selectedMonument.image} alt={selectedMonument.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { if(e.target.src !== genericImage) e.target.src = genericImage; }} />
-            </div>
+        <div onClick={() => setSelectedMonument(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px', background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' }}>
+          
+          {/* Main Glass Card */}
+          <div onClick={(e) => e.stopPropagation()} style={{ background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 100%)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255, 255, 255, 0.8)', borderRadius: '24px', maxWidth: '1000px', width: '100%', maxHeight: '90vh', overflowY: 'auto', position: 'relative', display: 'flex', flexDirection: 'column', boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)' }}>
             
-            <div style={{ padding: '30px' }}>
+            <button onClick={() => setSelectedMonument(null)} style={{ position: 'absolute', top: '25px', right: '25px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10, transition: 'background 0.2s' }} onMouseOver={(e)=>e.currentTarget.style.background='rgba(239, 68, 68, 0.2)'} onMouseOut={(e)=>e.currentTarget.style.background='rgba(239, 68, 68, 0.1)'}>
+              <X size={24} strokeWidth={2.5} />
+            </button>
+            
+            <div style={{ padding: '40px' }}>
               <h2 style={{ fontSize: '2.5rem', color: '#d35400', margin: '0 0 10px 0' }}>{selectedMonument.name}</h2>
-              <div style={{ display: 'flex', gap: '20px', color: '#666', fontSize: '1rem', marginBottom: '30px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '20px', color: '#475569', fontSize: '1rem', marginBottom: '30px', flexWrap: 'wrap', fontWeight: '500' }}>
                 <span style={{ display: 'flex', alignItems: 'center' }}><MapPin size={18} style={{ marginRight: '5px' }} /> {selectedMonument.location}</span>
                 <span style={{ display: 'flex', alignItems: 'center' }}><Clock size={18} style={{ marginRight: '5px' }} /> Virtual Tour Available</span>
                 <span style={{ display: 'flex', alignItems: 'center' }}><Calendar size={18} style={{ marginRight: '5px' }} /> Open All Year</span>
@@ -216,31 +185,108 @@ export default function HeritageExplore() {
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px' }}>
                 <div>
-                  <h3 style={{ borderBottom: '2px solid #eee', paddingBottom: '10px', color: '#2c3e50' }}>Overview</h3>
-                  <p style={{ lineHeight: '1.8', color: '#444', marginBottom: '25px', fontSize: '1.05rem' }}>{selectedMonument.desc}</p>
+                  <h3 style={{ borderBottom: '2px solid rgba(0,0,0,0.1)', paddingBottom: '10px', color: '#0f172a' }}>Overview</h3>
+                  <p style={{ lineHeight: '1.8', color: '#334155', marginBottom: '25px', fontSize: '1.05rem' }}>{selectedMonument.desc}</p>
                   
-                  <h3 style={{ borderBottom: '2px solid #eee', paddingBottom: '10px', color: '#2c3e50' }}>Historical Significance</h3>
-                  <p style={{ lineHeight: '1.8', color: '#444', marginBottom: '25px', fontSize: '1.05rem' }}>{selectedMonument.history}</p>
+                  <h3 style={{ borderBottom: '2px solid rgba(0,0,0,0.1)', paddingBottom: '10px', color: '#0f172a' }}>Historical Significance</h3>
+                  <p style={{ lineHeight: '1.8', color: '#334155', marginBottom: '25px', fontSize: '1.05rem' }}>{selectedMonument.history}</p>
 
-                  <h3 style={{ borderBottom: '2px solid #eee', paddingBottom: '10px', color: '#2c3e50' }}>Architecture & Design</h3>
-                  <p style={{ lineHeight: '1.8', color: '#444', marginBottom: '25px', fontSize: '1.05rem' }}>{selectedMonument.architecture}</p>
+                  <h3 style={{ borderBottom: '2px solid rgba(0,0,0,0.1)', paddingBottom: '10px', color: '#0f172a' }}>Architecture & Design</h3>
+                  <p style={{ lineHeight: '1.8', color: '#334155', marginBottom: '25px', fontSize: '1.05rem' }}>{selectedMonument.architecture}</p>
                 </div>
 
                 <div>
-                  <div style={{ background: '#fdfbf7', padding: '20px', borderRadius: '10px', border: '1px solid #eee', marginBottom: '20px' }}>
-                    <h3 style={{ margin: '0 0 15px 0', color: '#2c3e50' }}>Live Map Location</h3>
-                    <div style={{ width: '100%', height: '250px', background: '#ddd', borderRadius: '8px', overflow: 'hidden' }}>
-                      <iframe src={`https://www.google.com/maps?q=${encodeURIComponent(selectedMonument.mapQuery)}&output=embed`} width="100%" height="100%" style={{ border: 0 }} allowFullScreen="" loading="lazy" title="Google Maps Location"></iframe>
+                  {/* Frosted Inner Container for Map */}
+                  <div style={{ background: 'rgba(255, 255, 255, 0.5)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.6)', marginBottom: '20px', backdropFilter: 'blur(10px)' }}>
+                    <h3 style={{ margin: '0 0 15px 0', color: '#0f172a' }}>Live Map Location</h3>
+                    <div style={{ width: '100%', height: '250px', background: '#e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+                      <iframe 
+                        src={`https://maps.google.com/maps?q=${encodeURIComponent(selectedMonument.mapQuery)}&t=&z=13&ie=UTF8&iwloc=&output=embed`} 
+                        width="100%" 
+                        height="100%" 
+                        style={{ border: 0 }} 
+                        allowFullScreen="" 
+                        loading="lazy" 
+                        title="Google Maps Location">
+                      </iframe>
                     </div>
                   </div>
-                  <button className="btn" style={{ width: '100%', padding: '15px', fontSize: '1.1rem', marginBottom: '10px' }}>Join Live Virtual Tour</button>
-                  <button className="btn" style={{ width: '100%', padding: '15px', fontSize: '1.1rem', background: '#2c3e50' }}>Connect with Tour Guide</button>
+                  
+                  <button 
+                    onClick={(e) => openActionModal('join', e)} 
+                    style={{ width: '100%', padding: '15px', fontSize: '1.1rem', marginBottom: '10px', cursor: 'pointer', background: '#ef4444', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', boxShadow: '0 4px 10px rgba(239, 68, 68, 0.3)' }}
+                  >
+                    ▶ Join Live Virtual Tour
+                  </button>
+                  <button 
+                    onClick={(e) => openActionModal('connect', e)} 
+                    style={{ width: '100%', padding: '15px', fontSize: '1.1rem', cursor: 'pointer', background: '#1e293b', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', boxShadow: '0 4px 10px rgba(30, 41, 59, 0.3)' }}
+                  >
+                    💬 Connect with Tour Guide
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       )}
+
+      {/* 🌟 PREMIUM LIQUID GLASS MODAL: JOIN LIVE STREAM 🌟 */}
+      {activeActionModal === 'join' && selectedMonument && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', padding: '20px' }}>
+          <div style={{ background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(25px)', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '24px', padding: '20px', width: '100%', maxWidth: '800px', position: 'relative', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)' }}>
+            <button onClick={() => setActiveActionModal(null)} style={{ position: 'absolute', top: '-40px', right: '0', background: 'transparent', border: 'none', fontSize: '2rem', cursor: 'pointer', color: 'white' }}>✖</button>
+            
+            <div style={{ background: '#000', height: '400px', borderRadius: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: 'white' }}>
+              <div style={{ fontSize: '4rem', animation: 'pulse 2s infinite' }}>🔴</div>
+              <h2 style={{ marginTop: '20px', textAlign: 'center' }}>Connecting to Live Stream...</h2>
+              <p style={{ color: '#94a3b8', textAlign: 'center' }}>{selectedMonument.name} with {selectedMonument.guide}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🌟 PREMIUM LIQUID GLASS MODAL: CONNECT WITH GUIDE 🌟 */}
+      {activeActionModal === 'connect' && selectedMonument && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', padding: '20px' }}>
+          <div style={{ background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.7) 100%)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255, 255, 255, 0.8)', borderRadius: '24px', padding: '40px', width: '100%', maxWidth: '500px', position: 'relative', boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)' }}>
+            <button onClick={() => setActiveActionModal(null)} style={{ position: 'absolute', top: '20px', right: '20px', background: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#64748b' }}>✖</button>
+            
+            <h2 style={{ margin: '0 0 5px 0', color: '#0f172a', fontSize: '1.8rem' }}>Contact Guide 💬</h2>
+            <p style={{ color: '#64748b', marginBottom: '25px' }}>Send a direct message to <strong>{selectedMonument.guide}</strong>.</p>
+            
+            {!messageSent ? (
+              <>
+                <textarea 
+                  placeholder={`Ask ${selectedMonument.guide} a question about the ${selectedMonument.name}...`}
+                  style={{ width: '100%', height: '120px', padding: '15px', borderRadius: '10px', border: '1px solid #cbd5e1', marginBottom: '20px', fontSize: '1rem', resize: 'none', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                ></textarea>
+                <button 
+                  onClick={() => setMessageSent(true)}
+                  style={{ width: '100%', background: '#3b82f6', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1.1rem', boxShadow: '0 4px 10px rgba(59, 130, 246, 0.3)' }}
+                >
+                  Send Message
+                </button>
+              </>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '30px 0' }}>
+                <div style={{ fontSize: '4rem', marginBottom: '10px' }}>✅</div>
+                <h3 style={{ color: '#166534', margin: '0' }}>Message Sent!</h3>
+                <p style={{ color: '#64748b', marginTop: '10px' }}>{selectedMonument.guide} will reply to your registered email.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes pulse {
+          0% { opacity: 1; }
+          50% { opacity: 0.5; }
+          100% { opacity: 1; }
+        }
+      `}</style>
+
     </div>
   );
 }

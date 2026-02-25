@@ -3,15 +3,23 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
-import Signup from './pages/Signup'; // Ensure you have created this file from the previous step
+import Signup from './pages/Signup';
 import RoleSelection from './pages/RoleSelection';
 import HeritageExplore from './pages/HeritageExplore';
+import Bookings from './pages/Bookings';
+import DiscussForum from './pages/DiscussForum';
+
 
 // Import the 4 Dashboards
 import AdminDashboard from './pages/AdminDashboard';
 import EnthusiastDashboard from './pages/EnthusiastDashboard';
 import CreatorDashboard from './pages/CreatorDashboard';
 import GuideDashboard from './pages/GuideDashboard';
+
+// Import the 3 New Admin Sub-Pages
+import VerifyGuides from './pages/VerifyGuides';
+import ApproveContent from './pages/ApproveContent';
+import UserReports from './pages/UserReports';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 
@@ -72,13 +80,46 @@ function App() {
                 </ProtectedRoute>
               } />
 
+              {/* --- NEW: Admin Sub-Pages (Only Admin) --- */}
+              <Route path="/verify-guides" element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <VerifyGuides />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/approve-content" element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <ApproveContent />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/user-reports" element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <UserReports />
+                </ProtectedRoute>
+              } />
+              {/* ----------------------------------------- */}
+
               {/* 2. Enthusiast Dashboard (Enthusiast & Admin) */}
               <Route path="/enthusiast-dashboard" element={
                 <ProtectedRoute allowedRoles={['enthusiast', 'admin']}>
                   <EnthusiastDashboard />
                 </ProtectedRoute>
               } />
-              
+
+              {/* Add this near your Enthusiast Dashboard route */}
+<Route path="/bookings" element={
+  <ProtectedRoute allowedRoles={['enthusiast', 'admin']}>
+    <Bookings />
+  </ProtectedRoute>
+} />
+
+{/* Add this near your HeritageExplore route so anyone can access it */}
+<Route path="/forum" element={
+  <ProtectedRoute allowedRoles={['enthusiast', 'admin', 'guide', 'creator']}>
+    <DiscussForum />
+  </ProtectedRoute>
+} />
               {/* 3. Creator Dashboard (Creator & Admin) */}
               <Route path="/creator-dashboard" element={
                 <ProtectedRoute allowedRoles={['creator', 'admin']}>
