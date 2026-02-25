@@ -3,7 +3,7 @@ import { MapPin, X, Info, Sparkles, Search, Clock, Calendar } from 'lucide-react
 
 export default function HeritageExplore() {
   // 👇 PASTE YOUR GEMINI API KEY HERE 👇
-  const GEMINI_API_KEY = "AIzaSyBLiNbabyO4ZuvOCEo2yJzdi2W4V_seHfo"; 
+  const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY; 
 
   const [selectedMonument, setSelectedMonument] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
