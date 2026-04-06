@@ -12,64 +12,35 @@ export default function DiscussForum() {
   const [newTopicCategory, setNewTopicCategory] = useState('History');
   const [newTopicMessage, setNewTopicMessage] = useState('');
 
-  const [threads, setThreads] = useState([
-    {
-      id: 1,
-      title: "Best time of day to visit the Taj Mahal?",
-      author: "TravelBug99",
-      category: "Travel Advice",
-      replies: 14,
-      lastActive: "2 hours ago",
-      conversation: [
-        { user: "TravelBug99", msg: "I'm planning a virtual tour and a real visit later this year. Is sunrise or sunset better for photography?" },
-        { user: "RahulGuide", msg: "Definitely sunrise! The marble changes color from pink to white as the sun comes up. It's magical and much less crowded." }
-      ]
-    },
-    {
-      id: 2,
-      title: "Decoding the astronomical clocks of Konark Sun Temple",
-      author: "HistoryNerd",
-      category: "Architecture",
-      replies: 8,
-      lastActive: "1 day ago",
-      conversation: [
-        { user: "HistoryNerd", msg: "Does anyone know exactly how to read the stone wheels at Konark to tell the time?" },
-        { user: "AnanyaReddy", msg: "Yes! The 8 major spokes represent the 8 pahars (3-hour periods) of the day. The shadow cast by the axle on the spokes tells you the exact minute!" }
-      ]
-    },
-    {
-      id: 3,
-      title: "Is the Hampi stone chariot actually carved from a single rock?",
-      author: "CuriousExplorer",
-      category: "History",
-      replies: 5,
-      lastActive: "3 days ago",
-      conversation: [
-        { user: "CuriousExplorer", msg: "I've heard rumors that the famous chariot is monolithic. Is that true?" },
-        { user: "PriyaPatel", msg: "Actually, it's an illusion! It is built from several giant granite blocks, but the joints are so perfectly carved and hidden that it looks like a single rock." }
-      ]
-    }
-  ]);
+  const [threads, setThreads] = useState([]);
 
-  const handlePostReply = () => {
-    if (!replyText.trim()) return;
-    const updatedThreads = threads.map(t => {
-      if (t.id === selectedThread.id) {
-        const newConvo = [...t.conversation, { user: "You", msg: replyText }];
-        return { ...t, conversation: newConvo, replies: t.replies + 1, lastActive: "Just now" };
-      }
-      return t;
+  React.useEffect(() => {
+    import('axios').then(axios => {
+      axios.get('http://localhost:8080/api/threads')
+        .then(res => setThreads(res.data))
+        .catch(err => console.error("Failed to fetch threads", err));
     });
-    setThreads(updatedThreads);
-    setSelectedThread(updatedThreads.find(t => t.id === selectedThread.id));
-    setReplyText('');
+  }, []);
+
+  const handlePostReply = async () => {
+    if (!replyText.trim()) return;
+    try {
+      const axios = (await import('axios')).default;
+      const response = await axios.post(`http://localhost:8080/api/threads/${selectedThread.id}/messages`, { user: "You", msg: replyText });
+      
+      const updatedThread = response.data;
+      setThreads(threads.map(t => t.id === selectedThread.id ? updatedThread : t));
+      setSelectedThread(updatedThread);
+      setReplyText('');
+    } catch(err) {
+      console.error("Failed to reply", err);
+    }
   };
 
-  const handleCreateTopic = () => {
+  const handleCreateTopic = async () => {
     if (!newTopicTitle.trim() || !newTopicMessage.trim()) return;
     
     const newThread = {
-      id: Date.now(),
       title: newTopicTitle,
       author: "You", 
       category: newTopicCategory,
@@ -80,8 +51,15 @@ export default function DiscussForum() {
       ]
     };
     
-    // Add the new thread to the top of the list
-    setThreads([newThread, ...threads]);
+    try {
+      const axios = (await import('axios')).default;
+      const response = await axios.post('http://localhost:8080/api/threads', newThread);
+      // Add the new thread to the top of the list
+      setThreads([response.data, ...threads]);
+    } catch(err) {
+      console.error("Failed to post topic", err);
+    }
+    
     
     // Close the modal and reset the form
     setIsCreatingTopic(false);

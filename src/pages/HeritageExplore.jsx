@@ -13,41 +13,16 @@ export default function HeritageExplore() {
   const [activeActionModal, setActiveActionModal] = useState(null); // 'join' or 'connect'
   const [messageSent, setMessageSent] = useState(false);
 
-  // Initial data without images
-  const [monuments, setMonuments] = useState([
-    { 
-      id: 1, name: "Taj Mahal", location: "Agra, Uttar Pradesh", 
-      desc: "An immense mausoleum of white marble, built in Agra between 1631 and 1648 by order of the Mughal emperor Shah Jahan in memory of his favourite wife.",
-      history: "Commissioned in 1632, the Taj Mahal took over 20 years to build and employed roughly 20,000 artisans.",
-      architecture: "It features perfect symmetrical planning, a massive white marble dome, and intricate pietra dura using semi-precious stones.",
-      mapQuery: "Taj Mahal, Agra, India",
-      guide: "Rahul Sharma"
-    },
-    { 
-      id: 2, name: "Hampi Monuments", location: "Vijayanagara, Karnataka", 
-      desc: "The grandiose site of Hampi was the last capital of the last great Hindu Kingdom of Vijayanagar.",
-      history: "Founded in the 14th century, Hampi was a prosperous, wealthy, and grand city. By 1500 CE, it was the world's second-largest medieval-era city after Beijing.",
-      architecture: "Famous for its large-scale Dravidian architecture, particularly the Virupaksha Temple and the iconic Stone Chariot.",
-      mapQuery: "Hampi, Karnataka, India",
-      guide: "Priya Patel"
-    },
-    { 
-      id: 3, name: "Konark Sun Temple", location: "Konark, Odisha", 
-      desc: "On the shores of the Bay of Bengal, the temple at Konarak is a monumental representation of the sun god Surya's chariot, featuring 24 intricately carved wheels.",
-      history: "Built in the 13th century by King Narasimhadeva I of the Eastern Ganga dynasty. It was called the 'Black Pagoda' by European sailors.",
-      architecture: "Designed as a massive chariot drawn by seven majestic horses. The wheels act as sundials, which can be used to calculate time to the exact minute.",
-      mapQuery: "Konark Sun Temple, Odisha, India",
-      guide: "Amit Kumar"
-    },
-    { 
-      id: 4, name: "Ajanta Caves", location: "Aurangabad, Maharashtra", 
-      desc: "The Ajanta Caves are approximately 30 rock-cut Buddhist cave monuments dating from the 2nd century BCE to about 480 CE.",
-      history: "Abandoned and forgotten for centuries, these caves were accidentally rediscovered in 1819 by a British officer named John Smith during a tiger hunting expedition.",
-      architecture: "Entirely carved out of the solid rock of a horseshoe-shaped cliff. The caves include sanctuaries and monasteries adorned with expressive mural paintings.",
-      mapQuery: "Ajanta Caves, Maharashtra, India",
-      guide: "Neha Gupta"
-    }
-  ]);
+  const [monuments, setMonuments] = useState([]);
+  
+  // Fetch from Backend on Mount
+  React.useEffect(() => {
+    import('axios').then(axios => {
+      axios.get('http://localhost:8080/api/monuments')
+        .then(res => setMonuments(res.data))
+        .catch(err => console.error("Failed to fetch monuments", err));
+    });
+  }, []);
 
   const handleAISearch = async (e) => {
     e.preventDefault();
@@ -84,7 +59,6 @@ export default function HeritageExplore() {
       const finalArch = archMatch ? archMatch[1] : `Features classic Indian architectural styles.`;
 
       const newMonument = {
-        id: Date.now(),
         name: searchQuery.toUpperCase(),
         location: "Verified by AI Database",
         desc: `✨ ${finalDesc}`,
@@ -94,8 +68,11 @@ export default function HeritageExplore() {
         guide: "AI Virtual Guide"
       };
 
-      setMonuments([newMonument, ...monuments]);
-      setSelectedMonument(newMonument);
+      const axios = (await import('axios')).default;
+      const responseBackend = await axios.post('http://localhost:8080/api/monuments', newMonument);
+
+      setMonuments([responseBackend.data, ...monuments]);
+      setSelectedMonument(responseBackend.data);
       setSearchQuery(''); 
 
     } catch (err) {

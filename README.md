@@ -1,16 +1,44 @@
-# React + Vite
+# Sanchari - Full Stack Migration
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sanchari has been successfully migrated from a static React frontend to a Full-Stack architecture with a Spring Boot backend and MySQL DB.
 
-Currently, two official plugins are available:
+## Prerequisites
+- Java 17+ installed
+- Node.js installed
+- MySQL Server installed and running on port 3306
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Database Configuration
+Make sure you have a database schema named `sanchari` created in your MySQL environment:
+```sql
+CREATE DATABASE sanchari;
+```
+The backend is configured to use the following credentials (editable in `sanchari-backend/src/main/resources/application.properties`):
+- Username: `nihar200710`
+- Password: `Kl2427351`
 
-## React Compiler
+By default, the backend will auto-create the necessary tables (`users`, `monuments`, `bookings`, `forum_threads`, `thread_messages`) and insert initial mock data so you can test it immediately!
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+## How to Run
 
-## Expanding the ESLint configuration
+### 1. Spring Boot Backend
+Navigate to the `sanchari-backend` directory and run the application:
+```bash
+cd sanchari-backend
+./mvnw spring-boot:run
+```
+*(Or use `mvn spring-boot:run` if you have Maven installed globally).*
+The backend API will be available at `http://localhost:8080`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 2. React Frontend
+In a separate terminal, start the React Vite server from the project root:
+```bash
+cd indianheritage
+npm install
+npm run dev
+```
+The frontend UI will be running on `http://localhost:5173`.
+
+## Architecture Highlights
+- **Axios Integration**: Hardcoded state inside React has been removed. The `AuthContext`, `HeritageExplore`, `Bookings`, and `DiscussForum` pages all communicate directly with the backend using REST APIs.
+- **Global CORS**: The Spring backend utilizes a `CorsConfig` allowing secure requests from `localhost:5173`.
+- **Database Seeding**: The `DataInitializer.java` checks for an empty database and automatically inserts all the previous mock data directly into MySQL during the first launch.
