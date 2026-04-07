@@ -9,6 +9,8 @@ import HeritageExplore from './pages/HeritageExplore';
 import Bookings from './pages/Bookings';
 import DiscussForum from './pages/DiscussForum';
 
+// Fix: Import UserManagement from pages
+import UserManagement from './pages/UserManagement';
 
 // Import the 4 Dashboards
 import AdminDashboard from './pages/AdminDashboard';
@@ -16,7 +18,7 @@ import EnthusiastDashboard from './pages/EnthusiastDashboard';
 import CreatorDashboard from './pages/CreatorDashboard';
 import GuideDashboard from './pages/GuideDashboard';
 
-// Import the 3 New Admin Sub-Pages
+// Import the 3 Admin Sub-Pages
 import VerifyGuides from './pages/VerifyGuides';
 import ApproveContent from './pages/ApproveContent';
 import UserReports from './pages/UserReports';
@@ -27,13 +29,11 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
   
-  // 1. If not logged in, go to Login
   if (!user) {
     return <Navigate to="/login" replace />;
   }
   
-  // 2. If logged in but wrong role, show error
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  if (allowedRoles && !allowedRoles.includes(user.role.toLowerCase())) {
     return (
       <div className="container" style={{textAlign: 'center', marginTop: '50px'}}>
         <h2 style={{color: 'red'}}>Access Denied 🚫</h2>
@@ -43,14 +43,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     );
   }
 
-  // 3. If all good, show the page
   return children;
 };
 
-// Navbar needs access to Auth, so we wrap it
 const Navigation = () => {
   const { user, logout } = useAuth();
-  // Pass user and logout function to Navbar so it can show "Welcome User" or "Logout"
   return <Navbar user={user} logout={logout} />;
 };
 
@@ -58,7 +55,6 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        {/* Main Wrapper with full width fix */}
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', width: '100%' }}>
           
           <Navigation />
@@ -71,73 +67,64 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
 
-              {/* --- Role-Based Protected Routes --- */}
-
-              {/* 1. Admin Dashboard (Only Admin) */}
+              {/* --- Admin Routes --- */}
               <Route path="/admin-dashboard" element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <AdminDashboard />
                 </ProtectedRoute>
               } />
-
-              {/* --- NEW: Admin Sub-Pages (Only Admin) --- */}
               <Route path="/verify-guides" element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <VerifyGuides />
                 </ProtectedRoute>
               } />
-              
               <Route path="/approve-content" element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <ApproveContent />
                 </ProtectedRoute>
               } />
-              
               <Route path="/user-reports" element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <UserReports />
                 </ProtectedRoute>
               } />
-              {/* ----------------------------------------- */}
+              <Route path="/admin/manage-users" element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <UserManagement />
+                </ProtectedRoute>
+              } />
 
-              {/* 2. Enthusiast Dashboard (Enthusiast & Admin) */}
+              {/* --- Enthusiast Routes --- */}
               <Route path="/enthusiast-dashboard" element={
                 <ProtectedRoute allowedRoles={['enthusiast', 'admin']}>
                   <EnthusiastDashboard />
                 </ProtectedRoute>
               } />
+              <Route path="/bookings" element={
+                <ProtectedRoute allowedRoles={['enthusiast', 'admin']}>
+                  <Bookings />
+                </ProtectedRoute>
+              } />
 
-              {/* Add this near your Enthusiast Dashboard route */}
-<Route path="/bookings" element={
-  <ProtectedRoute allowedRoles={['enthusiast', 'admin']}>
-    <Bookings />
-  </ProtectedRoute>
-} />
-
-{/* Add this near your HeritageExplore route so anyone can access it */}
-<Route path="/forum" element={
-  <ProtectedRoute allowedRoles={['enthusiast', 'admin', 'guide', 'creator']}>
-    <DiscussForum />
-  </ProtectedRoute>
-} />
-              {/* 3. Creator Dashboard (Creator & Admin) */}
+              {/* --- Shared & Other Roles --- */}
+              <Route path="/explore" element={
+                <ProtectedRoute allowedRoles={['enthusiast', 'admin', 'guide']}>
+                  <HeritageExplore />
+                </ProtectedRoute>
+              } />
+              <Route path="/forum" element={
+                <ProtectedRoute allowedRoles={['enthusiast', 'admin', 'guide', 'creator']}>
+                  <DiscussForum />
+                </ProtectedRoute>
+              } />
               <Route path="/creator-dashboard" element={
                 <ProtectedRoute allowedRoles={['creator', 'admin']}>
                   <CreatorDashboard />
                 </ProtectedRoute>
               } />
-
-              {/* 4. Guide Dashboard (Guide & Admin) */}
               <Route path="/guide-dashboard" element={
                 <ProtectedRoute allowedRoles={['guide', 'admin']}>
                   <GuideDashboard />
-                </ProtectedRoute>
-              } />
-
-              {/* Shared Feature: Explore Page (Accessible to Enthusiast, Admin & Guide) */}
-              <Route path="/explore" element={
-                <ProtectedRoute allowedRoles={['enthusiast', 'admin', 'guide']}>
-                  <HeritageExplore />
                 </ProtectedRoute>
               } />
 
